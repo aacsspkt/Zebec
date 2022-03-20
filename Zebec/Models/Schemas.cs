@@ -4,12 +4,21 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Zebec.Models
 {
-    internal class Stream
+    [Serializable]
+    internal class InitStream: ISerializable
     {
         public byte Instruction { get => 0; }
         public ulong AmountInLamport { get; init; }
         public ulong StartTime { get; init; }
         public ulong EndTime { get; init; }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Instruction), Instruction);
+            info.AddValue(nameof(AmountInLamport), AmountInLamport);
+            info.AddValue(nameof(StartTime), StartTime);
+            info.AddValue(nameof(EndTime), EndTime);
+        }
 
         public byte[] Serialize()
         {
@@ -30,19 +39,12 @@ namespace Zebec.Models
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Instruction", Instruction, typeof(byte));
-            info.AddValue("AmountInLamport", AmountInLamport, typeof(ulong));
+            info.AddValue(nameof(Instruction), Instruction);
+            info.AddValue(nameof(AmountInLamport), AmountInLamport);
         }
 
         public byte[] Serialize()
         {
-            //if(this == null) return null;
-
-            //BinaryFormatter binaryFormatter = new BinaryFormatter();
-            //using (MemoryStream ms = new MemoryStream())
-            //{
-            //    binaryFormatter.Serialize(ms, this);
-            //}
             var byteArray = new byte[9];
             byteArray.WriteU8(Instruction, 0);
             byteArray.WriteU64(AmountInLamport, 1);
@@ -50,10 +52,16 @@ namespace Zebec.Models
         }
     }
 
-    internal class Cancel
+    [Serializable]
+    internal class CancelStream : ISerializable
     {
         public byte Instruction { get => 2; }
 
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Instruction), Instruction);
+        }
+
         public byte[] Serialize()
         {
             var byteArray = new byte[1];
@@ -62,10 +70,16 @@ namespace Zebec.Models
         }
     }
 
-    internal class Pause
+    [Serializable]
+    internal class PauseStream: ISerializable
     {
         public byte Instruction { get => 4; }
 
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Instruction), Instruction);
+        }
+
         public byte[] Serialize()
         {
             var byteArray = new byte[1];
@@ -74,10 +88,16 @@ namespace Zebec.Models
         }
     }
 
-    internal class Resume
+    [Serializable]
+    internal class ResumeStream: ISerializable
     {
         public byte Instruction { get => 5; }
 
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Instruction), Instruction);
+        }
+
         public byte[] Serialize()
         {
             var byteArray = new byte[1];
@@ -86,28 +106,42 @@ namespace Zebec.Models
         }
     }
 
-    internal class WithdrawStreamed
+    [Serializable]
+    internal class WithdrawStreamed: ISerializable
     {
         public byte Instruction { get => 1; }
         public ulong AmountInLamport { get; init; }
 
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Instruction), Instruction);
+            info.AddValue(nameof(AmountInLamport), AmountInLamport);
+        }
+
         public byte[] Serialize()
         {
-            var byteArray = new byte[2];
+            var byteArray = new byte[9];
             byteArray.WriteU8(Instruction, 0);
             byteArray.WriteU64(AmountInLamport, 1);
             return byteArray;
         }
     }
 
-    internal class WithdrawMainWallet
+    [Serializable]
+    internal class WithdrawDeposit: ISerializable
     {
         public byte Instruction { get => 14; }
         public ulong AmountInLamport { get; init; }
 
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Instruction), Instruction);
+            info.AddValue(nameof(AmountInLamport), AmountInLamport);
+        }
+
         public byte[] Serialize()
         {
-            var byteArray = new byte[2];
+            var byteArray = new byte[9];
             byteArray.WriteU8(Instruction, 0);
             byteArray.WriteU64(AmountInLamport, 1);
             return byteArray;
