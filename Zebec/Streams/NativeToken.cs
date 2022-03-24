@@ -1,4 +1,6 @@
-﻿using Solnet.Programs;
+﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using Solnet.Programs;
 using Solnet.Programs.Utilities;
 using Solnet.Rpc;
 using Solnet.Rpc.Core.Http;
@@ -7,7 +9,9 @@ using Solnet.Rpc.Models;
 using Solnet.Wallet;
 using System.Text;
 using Zebec.Models;
-
+using Solnet.Rpc.Builders;
+using Zebec.Programs;
+using Solnet.Rpc.Types;
 
 namespace Zebec.Streams
 {
@@ -17,333 +21,198 @@ namespace Zebec.Streams
     {
         private static readonly IRpcClient rpcClient = ClientFactory.GetClient(Cluster.DevNet);
 
-        private static readonly PublicKey Base58PublicKey = new PublicKey("AknC341xog56SrnoK6j3mUvaD1Y7tYayx1sxUGpeYWdX");
-
-        private static readonly PublicKey ZebecProgramIdKey = new PublicKey("AknC341xog56SrnoK6j3mUvaD1Y7tYayx1sxUGpeYWdX");
-
-        private static readonly PublicKey FeeAddressIdKey = new PublicKey("EsDV3m3xUZ7g8QKa1kFdbZT18nNz8ddGJRcTK84WDQ7k");
-
-        private const string STRING_OF_WITHDRAW = "withdraw_sol";
-
-        private Wallet wallet { get; set; }
-
-        public NativeToken(Wallet wallet)
+        public static async Task<ZebecResponse> Deposit(
+            Account account, 
+            decimal amount)
         {
-            this.wallet = wallet;
+            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
+
+
+            byte[] transaction = new TransactionBuilder().
+                SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+                .SetFeePayer(account)
+                .AddInstruction(ZebecProgram.DepositSol(
+                    account.PublicKey, 
+                    SolHelper.ConvertToLamports(amount))
+                )
+               .Build(account);
+
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
+
+            return new ZebecResponse(requestResult);
         }
 
-        public async Task<ZebecResult> InitStreamAsync(Account fromAccount, Account toAccount, decimal ammountInSol, ulong startTime, ulong endTime)
+        public static async Task<ZebecResponse> Withdraw(
+            Account account, 
+            decimal amount)
         {
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]> { Encoding.ASCII.GetBytes(STRING_OF_WITHDRAW), fromAccount.PublicKey.KeyBytes },
-                ZebecProgramIdKey,
-                out PublicKey validProgramPublicKey,
-                out byte bump
-                );
-
-            var streamDepositAccount = new Account();
-
             RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
-            TransactionInstruction instruction = new()
-            {
-                Keys = new List<AccountMeta>()
-                {
-                    AccountMeta.Writable(fromAccount.PublicKey, true),
-                    AccountMeta.Writable(toAccount.PublicKey, false),
-                    AccountMeta.Writable(streamDepositAccount.PublicKey, true),
-                    AccountMeta.Writable(validProgramPublicKey, false),
-                    AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
-                },
-                ProgramId = ZebecProgramIdKey.KeyBytes,
-                Data = new InitStream()
-                {
-                    AmountInLamport = SolHelper.ConvertToLamports(ammountInSol),
-                    StartTime = startTime,
-                    EndTime = endTime
-                }.Serialize()
-            };
+            byte[] transaction = new TransactionBuilder().
+               SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+               .SetFeePayer(account)
+               .AddInstruction(ZebecProgram.WithdrawSol(
+                   account.PublicKey, 
+                   SolHelper.ConvertToLamports(amount))
+               )
+               .Build(account);
+                
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
 
-            Transaction transaction = new()
-            {
-                RecentBlockHash = blockHash.Result.Value.Blockhash,
-                FeePayer = fromAccount,
-                Instructions = new List<TransactionInstruction>() { instruction },
-            };
-
-            transaction.PartialSign(streamDepositAccount);
-
-            byte[] compiledTransaction = transaction.CompileMessage();
-
-            byte[] signedTransaction = wallet.Sign(compiledTransaction);
-
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(signedTransaction);
-
-            return new ZebecResult(requestResult.Result, streamDepositAccount);
+            return new ZebecResponse(requestResult);
         }
 
-
-        public async Task<ZebecResult> DepositAsync(Account fromAccount, decimal amountInSOL)
+        public static async Task<ZebecResponse> InitializeStream(
+            Account fromAccount, 
+            Account toAccount, 
+            decimal amount, 
+            ulong startTimeInUnixTimestamp,
+            ulong endTimeInUnixTimestamp)
         {
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { fromAccount.PublicKey.KeyBytes },
-                ZebecProgramIdKey,
-                out PublicKey validProgramPublicKey,
-                out byte bump
-                );
-
             RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
-            TransactionInstruction instruction = new()
-            {
-                Keys = new List<AccountMeta>()
-                {
-                    AccountMeta.Writable(fromAccount, true),
-                    AccountMeta.Writable(validProgramPublicKey, false),
-                    AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
-                },
-                ProgramId = ZebecProgramIdKey.KeyBytes,
-                Data = new Deposit()
-                {
-                    AmountInLamport = SolHelper.ConvertToLamports(amountInSOL)
-                }.Serialize()
-            };
+            byte[] transaction = new TransactionBuilder()
+                .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+                .SetFeePayer(fromAccount)
+                .AddInstruction(ZebecProgram.InitializeSolStream(
+                    fromAccount.PublicKey, 
+                    toAccount.PublicKey, 
+                    startTimeInUnixTimestamp, 
+                    endTimeInUnixTimestamp, 
+                    SolHelper.ConvertToLamports(amount), 
+                    out Account streamDataAccount)
+                )
+                .Build(new List<Account>() { fromAccount, streamDataAccount, });
 
-            Transaction transaction = new()
-            {
-                RecentBlockHash = blockHash.Result.Value.Blockhash,
-                FeePayer = fromAccount.PublicKey,
-                Instructions = new List<TransactionInstruction>() { instruction }
-            };
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            byte[] compiledTransaction = transaction.CompileMessage();
-
-            byte[] signedTransaction = wallet.Sign(compiledTransaction);
-
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(signedTransaction);
-
-            return new ZebecResult(requestResult.Result);
+            return new ZebecResponse(requestResult, streamDataAccount.PublicKey);
         }
 
-
-        public async Task<ZebecResult> WithdrawDeposited(Account fromAccount, decimal amountInSOL)
+        public static async Task<ZebecResponse> WithdrawStream(
+            Account fromAccount,
+            Account toAccount, 
+            PublicKey streamDataPda, 
+            decimal amount)
         {
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { fromAccount.PublicKey.KeyBytes },
-                ZebecProgramIdKey,
-                out PublicKey validProgramPublicKey,
-                out byte bump
-                );
-
-            bool success1 = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { Encoding.ASCII.GetBytes(STRING_OF_WITHDRAW), fromAccount.PublicKey.KeyBytes, },
-                ZebecProgramIdKey,
-                out PublicKey validProgramPublicKeyOfWithdraw,
-                out byte bumpOfWithdraw
-                );
-
-            TransactionInstruction instruction = new()
-            {
-                Keys = new List<AccountMeta>()
-                {
-                    AccountMeta.Writable(fromAccount.PublicKey, true),
-                    AccountMeta.Writable(validProgramPublicKey, false),
-                    AccountMeta.Writable(validProgramPublicKeyOfWithdraw, false),
-                    AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
-                },
-                ProgramId = ZebecProgramIdKey.KeyBytes,
-                Data = new WithdrawDeposit()
-                {
-                    AmountInLamport = SolHelper.ConvertToLamports(amountInSOL)
-                }.Serialize(),
-            };
-
             RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
-            Transaction transaction = new()
-            {
-                RecentBlockHash = blockHash.Result.Value.Blockhash,
-                FeePayer = fromAccount.PublicKey,
-                Instructions = new List<TransactionInstruction>() { instruction }
-            };
+            byte[] transaction = new TransactionBuilder()
+                .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+                .SetFeePayer(toAccount)
+                .AddInstruction(ZebecProgram.WithdrawSolStream(
+                    fromAccount.PublicKey, 
+                    toAccount.PublicKey,
+                    streamDataPda, 
+                    SolHelper.ConvertToLamports(amount))
+                )
+                .Build(toAccount);
 
-            byte[] compiledTransaction = transaction.CompileMessage();
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            byte[] signedTransaction = wallet.Sign(compiledTransaction);
-
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(signedTransaction);
-
-            return new ZebecResult(requestResult.Result);
+            return new ZebecResponse(requestResult);
         }
 
-        public async Task<ZebecResult> WithdrawStreamed(Account fromAccount, Account toAccount, Account tempStreamDepositAccount, decimal amountInSOL)
+        public static async Task<ZebecResponse> CancelStream(
+            Account fromAccount, 
+            Account toAccount, 
+            PublicKey streamDataPda)
         {
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { fromAccount.PublicKey.KeyBytes },
-                ZebecProgramIdKey,
-                out PublicKey validProgramKey,
-                out byte bump
-                );
-
-            bool success1 = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { Encoding.ASCII.GetBytes(STRING_OF_WITHDRAW), fromAccount.PublicKey.KeyBytes, },
-                ZebecProgramIdKey,
-                out PublicKey validProgramKeyOfWithdraw,
-                out byte bumpOfWithdraw
-                );
-
-            TransactionInstruction instruction = new()
-            {
-                Keys = new List<AccountMeta>()
-                {
-                    AccountMeta.Writable(fromAccount.PublicKey, false),
-                    AccountMeta.Writable(toAccount.PublicKey, true),
-                    AccountMeta.Writable(validProgramKey, false),
-                    AccountMeta.Writable(tempStreamDepositAccount.PublicKey, false),
-                    AccountMeta.Writable(validProgramKeyOfWithdraw, false),
-                    AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
-                    AccountMeta.Writable(FeeAddressIdKey, false),
-                },
-                ProgramId = ZebecProgramIdKey.KeyBytes,
-                Data = new WithdrawStreamed()
-                {
-                    AmountInLamport = SolHelper.ConvertToLamports(amountInSOL)
-                }.Serialize(),
-            };
-
             RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
-            Transaction transaction = new()
-            {
-                RecentBlockHash = blockHash.Result.Value.Blockhash,
-                FeePayer = fromAccount.PublicKey,
-                Instructions = new List<TransactionInstruction>() { instruction }
-            };
+            byte[] transaction = new TransactionBuilder()
+                .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+                .SetFeePayer(fromAccount)
+                .AddInstruction(ZebecProgram.CancelSolStream(
+                    fromAccount.PublicKey, 
+                    toAccount.PublicKey, 
+                    streamDataPda)
+                )
+                .Build(fromAccount);
 
-            byte[] compiledTransaction = transaction.CompileMessage();
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            byte[] signedTransaction = wallet.Sign(compiledTransaction);
-
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(signedTransaction);
-
-            return new ZebecResult(requestResult.Result);
-        }
-
-        public async Task<ZebecResult> CancelStream(Account fromAccount, Account toAccount, Account tempStreamDepositAccount)
-        {
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { fromAccount.PublicKey.KeyBytes },
-                ZebecProgramIdKey,
-                out PublicKey validProgramKey,
-                out byte bump
-                );
-
-            bool success1 = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { Encoding.ASCII.GetBytes(STRING_OF_WITHDRAW), fromAccount.PublicKey.KeyBytes, },
-                ZebecProgramIdKey,
-                out PublicKey validProgramKeyOfWithdraw,
-                out byte bumpOfWithdraw
-                );
-
-            TransactionInstruction instruction = new()
-            {
-                Keys = new List<AccountMeta>()
-                {
-                    AccountMeta.Writable(fromAccount.PublicKey, true),
-                    AccountMeta.Writable(toAccount.PublicKey, false),
-                    AccountMeta.Writable(validProgramKey, false),
-                    AccountMeta.Writable(tempStreamDepositAccount.PublicKey, false),
-                    AccountMeta.Writable(validProgramKeyOfWithdraw, false),
-                    AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
-                    AccountMeta.Writable(FeeAddressIdKey, false),
-                },
-                ProgramId = ZebecProgramIdKey.KeyBytes,
-                Data = new CancelStream().Serialize(),
-            };
-
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
-
-            Transaction transaction = new()
-            {
-                RecentBlockHash = blockHash.Result.Value.Blockhash,
-                FeePayer = fromAccount.PublicKey,
-                Instructions = new List<TransactionInstruction>() { instruction }
-            };
-
-            byte[] compiledTransaction = transaction.CompileMessage();
-
-            byte[] signedTransaction = wallet.Sign(compiledTransaction);
-
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(signedTransaction);
-            
-            return new ZebecResult(requestResult.Result);
+            return new ZebecResponse(requestResult);
 
         }
 
-        public async Task<ZebecResult> PauseStream(Account fromAccount, Account toAccount, Account tempStreamDepositAccount)
+        public static async Task<ZebecResponse> PauseStream(
+            Account fromAccount, 
+            Account toAccount, 
+            PublicKey streamDataPda)
         {
-            TransactionInstruction instruction = new()
-            {
-                Keys = new List<AccountMeta>()
-                {
-                    AccountMeta.Writable(fromAccount.PublicKey, true),
-                    AccountMeta.Writable(toAccount.PublicKey, false),
-                    AccountMeta.Writable(tempStreamDepositAccount.PublicKey, false),
-                    AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
-                },
-                ProgramId = ZebecProgramIdKey.KeyBytes,
-                Data = new PauseStream().Serialize(),
-            };
-
             RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
-            Transaction transaction = new()
-            {
-                RecentBlockHash = blockHash.Result.Value.Blockhash,
-                FeePayer = fromAccount.PublicKey,
-                Instructions = new List<TransactionInstruction>() { instruction }
-            };
+            byte[] transaction = new TransactionBuilder()
+                .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+                .SetFeePayer(fromAccount)
+                .AddInstruction(ZebecProgram.PauseSolStream(
+                    fromAccount.PublicKey, 
+                    toAccount.PublicKey, 
+                    streamDataPda)
+                )
+                .Build(new List<Account>() { fromAccount, toAccount });
 
-            byte[] compiledTransaction = transaction.CompileMessage();
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            byte[] signedTransaction = wallet.Sign(compiledTransaction);
-
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(signedTransaction);
-
-            return new ZebecResult(requestResult.Result);
+            return new ZebecResponse(requestResult);
         }
-        
-        public async Task<ZebecResult> ResumeStream(Account fromAccount, Account toAccount, Account tempStreamDepositAccount)
+
+        public static async Task<ZebecResponse> ResumeStream(
+            Account fromAccount, 
+            Account toAccount, 
+            PublicKey streamDataPda)
         {
-            TransactionInstruction instruction = new()
-            {
-                Keys = new List<AccountMeta>()
-                {
-                    AccountMeta.Writable(fromAccount.PublicKey, true),
-                    AccountMeta.Writable(toAccount.PublicKey, false),
-                    AccountMeta.Writable(tempStreamDepositAccount.PublicKey, false),
-                    AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
-                },
-                ProgramId = ZebecProgramIdKey.KeyBytes,
-                Data = new ResumeStream().Serialize(),
-            };
-
             RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
-            Transaction transaction = new()
-            {
-                RecentBlockHash = blockHash.Result.Value.Blockhash,
-                FeePayer = fromAccount.PublicKey,
-                Instructions = new List<TransactionInstruction>() { instruction }
-            };
+            byte[] transaction = new TransactionBuilder()
+                .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+                .SetFeePayer(fromAccount)
+                .AddInstruction(ZebecProgram.ResumeSolStream(
+                    fromAccount.PublicKey, 
+                    toAccount.PublicKey,
+                    streamDataPda)
+                )
+                .Build(fromAccount);
 
-            byte[] compiledTransaction = transaction.CompileMessage();
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            byte[] signedTransaction = wallet.Sign(compiledTransaction);
-
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(signedTransaction);
-
-            return new ZebecResult(requestResult.Result);
+            return new ZebecResponse(requestResult);
         }
     }
 }
