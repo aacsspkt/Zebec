@@ -116,7 +116,7 @@ namespace Zebec.Streams
             byte[] transaction = new TransactionBuilder()
                 .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
                 .SetFeePayer(toAccount)
-                .AddInstruction(ZebecProgram.WithdrawSolStream(
+                .AddInstruction(ZebecProgram.WithdrawStreamSol(
                     fromAccount.PublicKey, 
                     toAccount.PublicKey,
                     streamDataPda, 
