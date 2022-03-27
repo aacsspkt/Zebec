@@ -38,7 +38,7 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to initialize transfer sol from one account to another via stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
+        /// <param name="sender">The public key of the account who initialize sol stream from.</param>
         /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
         /// <param name="startTime">The timestamp from which stream is to be initialized.</param>
         /// <param name="endTime">The timestamp at which the stream ends.</param>
@@ -83,7 +83,7 @@ namespace Zebec.Programs
             {
                 ProgramId = ProgramIdKey.KeyBytes,
                 Keys = keys,
-                Data = ZebecProgramData.EncodeInitializeSolStreamData(startTime, endTime, amount)
+                Data = ZebecProgramData.EncodeSolStreamData(startTime, endTime, amount)
             };
         }
 
@@ -96,7 +96,7 @@ namespace Zebec.Programs
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <param name="amount">The amount of tokens to transfer via stream.</param>
         /// <returns>The transaction instruction.</returns>
-        public static TransactionInstruction WithdrawSolStream(
+        public static TransactionInstruction WithdrawStreamSol( 
             PublicKey sender, 
             PublicKey reciever, 
             PublicKey streamDataPda, 
