@@ -13,7 +13,7 @@ using Solnet.Rpc.Builders;
 using Zebec.Programs;
 using Solnet.Rpc.Types;
 
-namespace Zebec.Streams
+namespace Zebec.Clients.Streams
 {
 
 
