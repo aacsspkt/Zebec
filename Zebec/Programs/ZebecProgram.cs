@@ -35,6 +35,10 @@ namespace Zebec.Programs
         private const string WITHDRAW_PREFIX = "withdraw_sol";
 
 
+        private const string WITHDRAW_TOKEN_PREFIX = "withdraw_token";
+
+
+
         /// <summary>
         /// Initializes an instruction to initialize transfer sol from one account to another via stream.
         /// </summary>
@@ -196,14 +200,62 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to initialize transfer sol from one account to another via stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="streamDataPda">The public key of the account which was return in 
-        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
+        /// <param name="sender">The public key of the account to initialize token stream from.</param>
+        /// <param name="recipient">The public key of the account to which token is streamed.</param>
+        /// <param name="token">The public key of the token which is streamed.</param>
+        /// <param name="startTime">The timestamp from which stream is to be initialized.</param>
+        /// <param name="endTime">The timestamp at which the stream ends.</param>
+        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="streamDataAccount">The Account which holds the stream data such as
+        /// start and end time, is paused or not, sender and recipient address, etc.</param>
         /// <returns>The transaction instruction.</returns>
-        public static TransactionInstruction InitializeTokenStream(PublicKey sender, ulong startTime, ulong endTime)
+        public static TransactionInstruction InitializeTokenStream(
+            PublicKey sender, 
+            PublicKey recipient,
+            PublicKey token,
+            ulong startTime,
+            ulong endTime,
+            ulong amount,
+            out Account streamDataAccount)
         {
-            return new TransactionInstruction();
+            Debug.WriteLine(sender, nameof(sender));
+            Debug.WriteLine(recipient, nameof(recipient));
+            Debug.WriteLine(token, nameof(token));
+            Debug.WriteLine(startTime.ToString(), nameof(startTime));
+            Debug.WriteLine(endTime.ToString(), nameof(endTime));
+
+            bool success = PublicKey.TryFindProgramAddress(
+                new List<byte[]>() { 
+                    Encoding.UTF8.GetBytes(WITHDRAW_TOKEN_PREFIX), 
+                    sender.KeyBytes,
+                    token.KeyBytes,
+                },
+                ProgramIdKey,
+                out PublicKey withdrawDataPda,
+                out byte withdrawBump
+                );
+            Debug.WriteLineIf(success, withdrawDataPda.ToString(), nameof(withdrawDataPda));
+
+            streamDataAccount = new Account();
+            Debug.WriteLine(streamDataAccount, nameof(streamDataAccount));
+
+            List<AccountMeta> keys = new()
+            {
+                AccountMeta.Writable(sender, true),
+                AccountMeta.Writable(recipient, false),
+                AccountMeta.Writable(streamDataAccount.PublicKey, false),
+                AccountMeta.Writable(withdrawDataPda, false),
+                AccountMeta.ReadOnly(TokenProgram.ProgramIdKey, false),
+                AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
+                AccountMeta.ReadOnly(token, false)
+            };
+
+            return new TransactionInstruction
+            {
+                ProgramId = ProgramIdKey.KeyBytes,
+                Keys = keys,
+                Data = ZebecProgramData.EncodeTokenStreamData(startTime, endTime, amount)
+            };
         }
 
         /// <summary>
@@ -282,6 +334,7 @@ namespace Zebec.Programs
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction WithdrawTokenStream(PublicKey sender, ulong startTime, ulong endTime)
         {
+
             return new TransactionInstruction();
         }
 

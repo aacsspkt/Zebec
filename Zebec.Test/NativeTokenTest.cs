@@ -5,7 +5,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Zebec.Models;
-using Zebec.Streams;
+using Zebec.Clients.Streams;
 using Zebec.Utils;
 
 namespace Zebec.Test
@@ -24,7 +24,7 @@ namespace Zebec.Test
         {
             Account testAccount = testWallet.GetAccount(0);
 
-            ZebecResponse response = await NativeToken.Deposit(testAccount, (decimal)0.00000001d);
+            ZebecResponse response = await NativeToken.Deposit(testAccount, (decimal)1d);
 
             Assert.AreEqual(response.Result.HttpStatusCode, HttpStatusCode.OK);
             Assert.IsTrue(response.Result.WasSuccessful);
@@ -35,7 +35,7 @@ namespace Zebec.Test
         {
             Account testAccount = testWallet.GetAccount(0);
 
-            ZebecResponse response = await NativeToken.Withdraw(testAccount, (decimal)0.1d);
+            ZebecResponse response = await NativeToken.Withdraw(testAccount, (decimal)0.0000001d);
 
             Assert.AreEqual(response.Result.HttpStatusCode, HttpStatusCode.OK);
             Assert.IsTrue(response.Result.WasSuccessful);
