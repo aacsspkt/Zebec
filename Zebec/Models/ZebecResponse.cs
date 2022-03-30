@@ -10,18 +10,18 @@ namespace Zebec.Models
 {
     public class ZebecResponse
     {
-        public RequestResult<string> Result { get; private set; }
+        public string Signature { get; private set; }
 
         public PublicKey? StreamDataAddress { get; private set; }
 
-        public ZebecResponse(RequestResult<string> result)
+        public ZebecResponse(string signature)
         {
-            Result = result;
+            Signature = signature;
         }
 
-        public ZebecResponse(RequestResult<string> result, PublicKey streamDepositAccount)
+        public ZebecResponse(string result, PublicKey streamDepositAccount)
         {
-            Result = result;
+            Signature = result;
             StreamDataAddress = streamDepositAccount;
         }
     }

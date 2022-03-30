@@ -21,7 +21,7 @@ namespace Zebec.Clients.Streams
     {
         private static readonly IRpcClient rpcClient = ClientFactory.GetClient(Cluster.DevNet);
 
-        public static async Task<ZebecResponse> Deposit(
+        public static async Task<RequestResult<ZebecResponse>> Deposit(
             Account account, 
             decimal amount)
         {
@@ -44,10 +44,19 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return new ZebecResponse(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                ServerErrorCode = requestResult.ServerErrorCode,
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        public static async Task<ZebecResponse> Withdraw(
+        public static async Task<RequestResult<ZebecResponse>> Withdraw(
             Account account, 
             decimal amount)
         {
@@ -69,10 +78,18 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
 
-            return new ZebecResponse(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        public static async Task<ZebecResponse> InitializeStream(
+        public static async Task<RequestResult<ZebecResponse>> InitializeStream(
             Account fromAccount, 
             Account toAccount, 
             decimal amount, 
@@ -101,10 +118,19 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return new ZebecResponse(requestResult, streamDataAccount.PublicKey);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result, streamDataAccount),
+                ServerErrorCode = requestResult.ServerErrorCode,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        public static async Task<ZebecResponse> WithdrawStream(
+        public static async Task<RequestResult<ZebecResponse>> WithdrawStream(
             Account fromAccount,
             Account toAccount, 
             PublicKey streamDataPda, 
@@ -130,10 +156,18 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return new ZebecResponse(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        public static async Task<ZebecResponse> CancelStream(
+        public static async Task<RequestResult<ZebecResponse>> CancelStream(
             Account fromAccount, 
             Account toAccount, 
             PublicKey streamDataPda)
@@ -157,11 +191,19 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return new ZebecResponse(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
 
         }
 
-        public static async Task<ZebecResponse> PauseStream(
+        public static async Task<RequestResult<ZebecResponse>> PauseStream(
             Account fromAccount, 
             Account toAccount, 
             PublicKey streamDataPda)
@@ -185,10 +227,18 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return new ZebecResponse(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse (requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        public static async Task<ZebecResponse> ResumeStream(
+        public static async Task<RequestResult<ZebecResponse>> ResumeStream(
             Account fromAccount, 
             Account toAccount, 
             PublicKey streamDataPda)
@@ -212,7 +262,15 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return new ZebecResponse(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };  
         }
     }
 }
