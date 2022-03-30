@@ -201,7 +201,7 @@ namespace Zebec.Programs
         /// Initializes an instruction to initialize transfer sol from one account to another via stream.
         /// </summary>
         /// <param name="sender">The public key of the account to initialize token stream from.</param>
-        /// <param name="recipient">The public key of the account to which token is streamed.</param>
+        /// <param name="reciever">The public key of the account to which token is streamed.</param>
         /// <param name="token">The public key of the token which is streamed.</param>
         /// <param name="startTime">The timestamp from which stream is to be initialized.</param>
         /// <param name="endTime">The timestamp at which the stream ends.</param>
@@ -211,7 +211,7 @@ namespace Zebec.Programs
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction InitializeTokenStream(
             PublicKey sender, 
-            PublicKey recipient,
+            PublicKey reciever,
             PublicKey token,
             ulong startTime,
             ulong endTime,
@@ -219,7 +219,7 @@ namespace Zebec.Programs
             out Account streamDataAccount)
         {
             Debug.WriteLine(sender, nameof(sender));
-            Debug.WriteLine(recipient, nameof(recipient));
+            Debug.WriteLine(reciever, nameof(reciever));
             Debug.WriteLine(token, nameof(token));
             Debug.WriteLine(startTime.ToString(), nameof(startTime));
             Debug.WriteLine(endTime.ToString(), nameof(endTime));
@@ -242,7 +242,7 @@ namespace Zebec.Programs
             List<AccountMeta> keys = new()
             {
                 AccountMeta.Writable(sender, true),
-                AccountMeta.Writable(recipient, false),
+                AccountMeta.Writable(reciever, false),
                 AccountMeta.Writable(streamDataAccount.PublicKey, false),
                 AccountMeta.Writable(withdrawDataPda, false),
                 AccountMeta.ReadOnly(TokenProgram.ProgramIdKey, false),
@@ -334,15 +334,14 @@ namespace Zebec.Programs
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction WithdrawTokenStream(PublicKey sender, ulong startTime, ulong endTime)
         {
-
             return new TransactionInstruction();
         }
 
         /// <summary>
         /// Initializes an instruction to deposit sol to Zebec Program.
         /// </summary>
-        /// <param name="address">The public key of the account who is going to deposit Sol for streaming</param>
-        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="address">The public key of the account who deposits Sol for streaming</param>
+        /// <param name="amount">The amount of tokens to deposit.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction DepositSol(PublicKey address, ulong amount)
         {
@@ -410,13 +409,50 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to initialize transfer sol from one account to another via stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="sender">The public key of the account who deposits token for streaming.</param>
+        /// <param name="token">The public key of the token which is streamed.</param>
+        /// <param name="amount">The amount of tokens to deposit.</param>
         /// <returns>The transaction instruction.</returns>
-        public static TransactionInstruction DepositToken(PublicKey sender, ulong startTime, ulong endTime)
+        public static TransactionInstruction DepositToken(
+            PublicKey sender, 
+            PublicKey token, 
+            ulong amount)
         {
-            return new TransactionInstruction();
+            Debug.WriteLine(sender, nameof(sender));
+            Debug.WriteLine(token, nameof(token));
+
+            bool success = PublicKey.TryFindProgramAddress(
+                new List<byte[]>() { sender.KeyBytes },
+                ProgramIdKey,
+                out PublicKey depositPda,
+                out byte depositBump);
+            Debug.WriteLineIf(success, depositPda, nameof(depositPda));
+
+            PublicKey senderAta = AssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(sender, token);
+            Debug.WriteLine(senderAta, nameof(senderAta));
+
+            PublicKey depositAta = AssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(depositPda, token);
+            Debug.WriteLine(depositAta, nameof(depositAta));
+
+            List<AccountMeta> keys = new()
+            {
+                AccountMeta.Writable(sender, true),
+                AccountMeta.ReadOnly(depositPda, false),
+                AccountMeta.ReadOnly(TokenProgram.ProgramIdKey, false),
+                AccountMeta.Writable(token, false),
+                AccountMeta.ReadOnly(SysVars.RentKey, false),
+                AccountMeta.Writable(senderAta, false),
+                AccountMeta.Writable(depositAta, false),
+                AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
+                AccountMeta.ReadOnly(AssociatedTokenAccountProgram.ProgramIdKey, false),
+            };
+
+            return new TransactionInstruction
+            {
+                ProgramId = ProgramIdKey.KeyBytes,
+                Keys = keys,
+                Data = ZebecProgramData.EncodeDepositTokenData(amount)
+            };
         }
 
         /// <summary>
@@ -489,13 +525,61 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to initialize transfer sol from one account to another via stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
+        /// <param name="address">The public key of the account to initialize sol stream from.</param>
+        /// <param name="recipient">The public key of the account to account to which sol is streamed.</param>
+        /// <param name="token">The public key of the token which is streamed.</param>
         /// <param name="amount">The amount of tokens to transfer via stream.</param>
         /// <returns>The transaction instruction.</returns>
-        public static TransactionInstruction WithdrawToken(PublicKey sender, ulong startTime, ulong endTime)
+        public static TransactionInstruction WithdrawToken(
+            PublicKey address, 
+            PublicKey recipient, 
+            PublicKey token, 
+            ulong amount)
         {
-            return new TransactionInstruction();
+            bool success = PublicKey.TryFindProgramAddress(
+                new List<byte[]> { address.KeyBytes, },
+                ProgramIdKey,
+                out PublicKey depositPda,
+                out byte depositPdaBump
+                );
+            Debug.WriteLineIf(success, depositPda.ToString(), nameof(depositPda));
+
+            bool anotherSuccess = PublicKey.TryFindProgramAddress(
+                new List<byte[]>
+                {
+                    Encoding.UTF8.GetBytes(WITHDRAW_TOKEN_PREFIX),
+                    address.KeyBytes,
+                    token.KeyBytes,
+                },
+                ProgramIdKey,
+                out PublicKey withdrawPda,
+                out byte withdrawBump
+                );
+
+            PublicKey senderAta = AssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(address, token);
+            Debug.WriteLine(senderAta, nameof(senderAta));
+
+            PublicKey depositAssociatedTokenAddress = AssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(depositPda, token);
+            Debug.WriteLine(depositAssociatedTokenAddress, nameof(depositAssociatedTokenAddress));
+
+            List<AccountMeta> keys = new()
+            {
+                AccountMeta.Writable(address, true),
+                AccountMeta.ReadOnly(TokenProgram.ProgramIdKey, false),
+                AccountMeta.Writable(token, false),
+                AccountMeta.Writable(senderAta, false),
+                AccountMeta.Writable(depositPda, false),
+                AccountMeta.Writable(withdrawPda, false),
+                AccountMeta.Writable(depositAssociatedTokenAddress, false),
+                AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false)
+            };
+
+            return new TransactionInstruction
+            {
+                ProgramId = ProgramIdKey.KeyBytes,
+                Keys = keys,
+                Data = ZebecProgramData.EncodeWithdrawTokenData(amount)
+            };
         }
 
         /// <summary>
