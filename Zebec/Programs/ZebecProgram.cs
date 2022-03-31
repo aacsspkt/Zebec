@@ -63,13 +63,8 @@ namespace Zebec.Programs
             Debug.WriteLine(startTime.ToString(), nameof(startTime));
             Debug.WriteLine(endTime.ToString(), nameof(endTime));
 
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { Encoding.UTF8.GetBytes(WITHDRAW_PREFIX), sender.KeyBytes }, 
-                ProgramIdKey, 
-                out PublicKey withdrawDataPda, 
-                out byte withdrawBump
-                );
-            Debug.WriteLineIf(success, withdrawDataPda.ToString(), nameof(withdrawDataPda));
+            PublicKey withdrawDataPda = DeriveSolWithdrawDataAccount(sender);
+            Debug.WriteLine(withdrawDataPda.ToString(), nameof(withdrawDataPda));
 
             streamDataAccount = new Account();
             Debug.WriteLine(streamDataAccount, nameof(streamDataAccount));
@@ -110,21 +105,11 @@ namespace Zebec.Programs
             Debug.WriteLine(reciever, nameof(reciever));
             Debug.WriteLine(streamDataPda, nameof(streamDataPda));
 
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { sender.KeyBytes },
-                ProgramIdKey,
-                out PublicKey depositPda,
-                out byte depositBump
-                );
-            Debug.WriteLineIf(success, depositPda.ToString(), nameof(depositPda));
+            PublicKey depositPda = DeriveDepositAccount(sender);
+            Debug.WriteLine(depositPda.ToString(), nameof(depositPda));
 
-            bool anotherSuccess = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { Encoding.UTF8.GetBytes(WITHDRAW_PREFIX), sender.KeyBytes },
-                ProgramIdKey,
-                out PublicKey withdrawDataPda,
-                out byte withdrawBump
-                );
-            Debug.WriteLineIf(anotherSuccess, withdrawDataPda.ToString(), nameof(withdrawDataPda));
+            PublicKey withdrawDataPda = DeriveSolWithdrawDataAccount(sender);
+            Debug.WriteLine(withdrawDataPda.ToString(), nameof(withdrawDataPda));
 
             List<AccountMeta> keys = new()
             {
@@ -162,21 +147,11 @@ namespace Zebec.Programs
             Debug.WriteLine(reciever, nameof(reciever));
             Debug.WriteLine(streamDataPda, nameof(streamDataPda));
 
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { sender.KeyBytes },
-                ProgramIdKey,
-                out PublicKey depositPda,
-                out byte depositBump
-                );
-            Debug.WriteLineIf(success, depositPda.ToString(), nameof(depositPda));
+            PublicKey depositPda = DeriveDepositAccount(sender);
+            Debug.WriteLine(depositPda.ToString(), nameof(depositPda));
 
-            bool anotherSuccess = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { Encoding.UTF8.GetBytes(WITHDRAW_PREFIX), sender.KeyBytes },
-                ProgramIdKey,
-                out PublicKey withdrawDataPda,
-                out byte withdrawBump
-                );
-            Debug.WriteLineIf(anotherSuccess, withdrawDataPda.ToString(), nameof(withdrawDataPda));
+            PublicKey withdrawDataPda = DeriveSolWithdrawDataAccount(sender);
+            Debug.WriteLine(withdrawDataPda.ToString(), nameof(withdrawDataPda));
 
             List<AccountMeta> keys = new()
             {
@@ -224,17 +199,8 @@ namespace Zebec.Programs
             Debug.WriteLine(startTime.ToString(), nameof(startTime));
             Debug.WriteLine(endTime.ToString(), nameof(endTime));
 
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { 
-                    Encoding.UTF8.GetBytes(WITHDRAW_TOKEN_PREFIX), 
-                    sender.KeyBytes,
-                    token.KeyBytes,
-                },
-                ProgramIdKey,
-                out PublicKey withdrawDataPda,
-                out byte withdrawBump
-                );
-            Debug.WriteLineIf(success, withdrawDataPda.ToString(), nameof(withdrawDataPda));
+            PublicKey withdrawDataPda = DeriveTokenWithdrawDataAccount(sender, token);
+            Debug.WriteLine(withdrawDataPda.ToString(), nameof(withdrawDataPda));
 
             streamDataAccount = new Account();
             Debug.WriteLine(streamDataAccount, nameof(streamDataAccount));
@@ -347,13 +313,8 @@ namespace Zebec.Programs
         {
             Debug.WriteLine(address, nameof(address));
 
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { address.KeyBytes },
-                ProgramIdKey,
-                out PublicKey depositPda,
-                out byte depositBump
-                );
-            Debug.WriteLineIf(success, depositPda.ToString(), nameof(depositPda));
+            PublicKey depositPda = DeriveDepositAccount(address);
+            Debug.WriteLine(depositPda.ToString(), nameof(depositPda));
 
             List<AccountMeta> keys = new()
             {
@@ -421,12 +382,8 @@ namespace Zebec.Programs
             Debug.WriteLine(sender, nameof(sender));
             Debug.WriteLine(token, nameof(token));
 
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { sender.KeyBytes },
-                ProgramIdKey,
-                out PublicKey depositPda,
-                out byte depositBump);
-            Debug.WriteLineIf(success, depositPda, nameof(depositPda));
+            PublicKey depositPda = DeriveDepositAccount(sender);
+            Debug.WriteLine(depositPda.ToString(), nameof(depositPda));
 
             PublicKey senderAta = AssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(sender, token);
             Debug.WriteLine(senderAta, nameof(senderAta));
@@ -489,22 +446,11 @@ namespace Zebec.Programs
         {
             Debug.WriteLine(address, nameof(address));
 
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { address.KeyBytes },
-                ProgramIdKey,
-                out PublicKey depositPda,
-                out byte depositBump
-                );
-            Debug.WriteLineIf(success, depositPda.ToString(), nameof(depositPda));
+            PublicKey depositPda = DeriveDepositAccount(address);
+            Debug.WriteLine(depositPda.ToString(), nameof(depositPda));
 
-            bool anotherSuccess = PublicKey.TryFindProgramAddress(
-                new List<byte[]>() { Encoding.UTF8.GetBytes(WITHDRAW_PREFIX), address.KeyBytes },
-                ProgramIdKey,
-                out PublicKey withdrawDataPda,
-                out byte withdrawBump
-                );
-
-            Debug.WriteLineIf(anotherSuccess, withdrawDataPda.ToString(), nameof(withdrawDataPda));
+            PublicKey withdrawDataPda = DeriveSolWithdrawDataAccount(address);
+            Debug.WriteLine(withdrawDataPda.ToString(), nameof(withdrawDataPda));
 
             List<AccountMeta> keys = new()
             {
@@ -536,31 +482,17 @@ namespace Zebec.Programs
             PublicKey token, 
             ulong amount)
         {
-            bool success = PublicKey.TryFindProgramAddress(
-                new List<byte[]> { address.KeyBytes, },
-                ProgramIdKey,
-                out PublicKey depositPda,
-                out byte depositPdaBump
-                );
-            Debug.WriteLineIf(success, depositPda.ToString(), nameof(depositPda));
+            PublicKey depositPda = DeriveDepositAccount(address);
+            Debug.WriteLine(depositPda.ToString(), nameof(depositPda));
 
-            bool anotherSuccess = PublicKey.TryFindProgramAddress(
-                new List<byte[]>
-                {
-                    Encoding.UTF8.GetBytes(WITHDRAW_TOKEN_PREFIX),
-                    address.KeyBytes,
-                    token.KeyBytes,
-                },
-                ProgramIdKey,
-                out PublicKey withdrawPda,
-                out byte withdrawBump
-                );
+            PublicKey withdrawDataPda = DeriveTokenWithdrawDataAccount(address, token);
+            Debug.WriteLine(withdrawDataPda.ToString(), nameof(withdrawDataPda));
 
             PublicKey senderAta = AssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(address, token);
             Debug.WriteLine(senderAta, nameof(senderAta));
 
-            PublicKey depositAssociatedTokenAddress = AssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(depositPda, token);
-            Debug.WriteLine(depositAssociatedTokenAddress, nameof(depositAssociatedTokenAddress));
+            PublicKey depositAta = AssociatedTokenAccountProgram.DeriveAssociatedTokenAccount(depositPda, token);
+            Debug.WriteLine(depositAta, nameof(depositAta));
 
             List<AccountMeta> keys = new()
             {
@@ -569,8 +501,8 @@ namespace Zebec.Programs
                 AccountMeta.Writable(token, false),
                 AccountMeta.Writable(senderAta, false),
                 AccountMeta.Writable(depositPda, false),
-                AccountMeta.Writable(withdrawPda, false),
-                AccountMeta.Writable(depositAssociatedTokenAddress, false),
+                AccountMeta.Writable(withdrawDataPda, false),
+                AccountMeta.Writable(depositAta, false),
                 AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false)
             };
 
@@ -856,6 +788,55 @@ namespace Zebec.Programs
         public static TransactionInstruction RejectTransferToken(PublicKey sender, ulong startTime, ulong endTime)
         {
             return new TransactionInstruction();
+        }
+
+        /// <summary>
+        /// Derive a PublicKey 
+        /// </summary>
+        /// <param name="seeds"></param>
+        /// <returns></returns>
+        public static PublicKey DeriveZebecProgramAddress(IEnumerable<byte[]> seeds)
+        {
+            PublicKey.TryFindProgramAddress(seeds, ProgramIdKey, out PublicKey pda, out byte _);
+            return pda;
+        }
+
+        public static PublicKey DeriveDepositAccount(PublicKey owner)
+        {
+            PublicKey.TryFindProgramAddress(
+                new List<byte[]>(){ owner.KeyBytes }, 
+                ProgramIdKey, 
+                out PublicKey address, 
+                out byte _);
+            return address;
+        }
+
+        public static PublicKey DeriveSolWithdrawDataAccount(PublicKey owner)
+        {
+            PublicKey.TryFindProgramAddress(new List<byte[]> 
+            { 
+                Encoding.UTF8.GetBytes(WITHDRAW_PREFIX), 
+                owner.KeyBytes 
+            }, 
+            ProgramIdKey, 
+            out PublicKey address, 
+            out byte _);
+            return address;
+        }
+        
+        public static PublicKey DeriveTokenWithdrawDataAccount(PublicKey owner, PublicKey token)
+        {
+            PublicKey.TryFindProgramAddress(
+                new List<byte[]> 
+                { 
+                    Encoding.UTF8.GetBytes(WITHDRAW_TOKEN_PREFIX), 
+                    owner.KeyBytes,
+                    token.KeyBytes
+                }, 
+                ProgramIdKey, 
+                out PublicKey address, 
+                out byte _);
+            return address;
         }
     }
 }
