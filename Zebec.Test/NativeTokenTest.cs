@@ -59,7 +59,7 @@ namespace Zebec.Test
                 );
 
             Assert.AreEqual(response.HttpStatusCode, HttpStatusCode.OK);
-            Assert.IsTrue(response.WasSuccessful);
+            Assert.IsTrue(response.WasSuccessful); 
         }
 
         [TestMethod]
