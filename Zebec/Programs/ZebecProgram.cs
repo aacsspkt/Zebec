@@ -209,7 +209,7 @@ namespace Zebec.Programs
             {
                 AccountMeta.Writable(sender, true),
                 AccountMeta.Writable(reciever, false),
-                AccountMeta.Writable(streamDataAccount.PublicKey, false),
+                AccountMeta.Writable(streamDataAccount.PublicKey, true),
                 AccountMeta.Writable(withdrawDataPda, false),
                 AccountMeta.ReadOnly(TokenProgram.ProgramIdKey, false),
                 AccountMeta.ReadOnly(SystemProgram.ProgramIdKey, false),
