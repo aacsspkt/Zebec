@@ -215,7 +215,42 @@ namespace Zebec.Clients.Streams
                 WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
                 WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
             };
+        }
 
+
+        public static async Task<RequestResult<ZebecResponse>> PauseStream(
+            Account fromAccount,
+            Account toAccount,
+            PublicKey streamDataPda)
+        {
+            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
+
+            byte[] transaction = new TransactionBuilder()
+                .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+                .SetFeePayer(fromAccount)
+                .AddInstruction(ZebecProgram.PauseTokenStream(
+                    fromAccount.PublicKey,
+                    toAccount.PublicKey,
+                    streamDataPda)
+                )
+                .Build(new List<Account>() { fromAccount, toAccount });
+
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
+
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
     }
 }
