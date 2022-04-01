@@ -38,15 +38,18 @@ namespace Zebec.Programs
         /// The prefix to create seed for withdraw pda for multi-tokens
         /// </summary>  
         private const string WITHDRAW_TOKEN_PREFIX = "withdraw_token";
-
-
+        
+        /// <summary>
+        /// The prefix to create seed for multisig safe pda
+        /// </summary>
+        private const string MULTISIG_SAFE_PREFIX = "multisig_safe";
 
         /// <summary>
         /// Initializes an instruction to initialize transfer sol from one account to another via stream.
         /// </summary>
-        /// <param name="sender">The public key of the account who initialize sol stream from.</param>
+        /// <param name="sender">The public key of the account who initialize sol stream.</param>
         /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="startTime">The timestamp from which stream is to be initialized.</param>
+        /// <param name="startTime">The timestamp from which stream is initialized.</param>
         /// <param name="endTime">The timestamp at which the stream ends.</param>
         /// <param name="amount">The amount of tokens to transfer via stream.</param>
         /// <param name="streamDataAccount">The Account which holds the stream data such as
@@ -91,8 +94,8 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to initialize withdraw sol recieved from stream. Here the reciever is the signer.
         /// </summary>
-        /// <param name="sender">The public key of the account from which sol stream was initialized.</param>
-        /// <param name="reciever">The public key of the account to whom sol was streamed and who can withdraw streamed sol.</param>
+        /// <param name="sender">The public key of the account who initialized sol stream.</param>
+        /// <param name="reciever">The public key of the account to whom sol was streamed.</param>
         /// <param name="streamDataPda">The public key of the account which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <param name="amount">The amount of tokens to transfer via stream.</param>
@@ -135,8 +138,8 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to cancel sol stream.
         /// </summary>
-        /// <param name="sender">The public key of the account initialized sol stream.</param>
-        /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
+        /// <param name="sender">The public key of the account who initialized sol stream.</param>
+        /// <param name="reciever">The public key of the account to which sol was streamed.</param>
         /// <param name="streamDataPda">The public key of the account which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>The transaction instruction.</returns>
@@ -175,12 +178,12 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Initializes an instruction to initialize transfer sol from one account to another via stream.
+        /// Initializes an instruction to initialize transfer token from one account to another via stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize token stream from.</param>
+        /// <param name="sender">The public key of the account who initialized token stream.</param>
         /// <param name="reciever">The public key of the account to which token is streamed.</param>
         /// <param name="token">The public key of the token which is streamed.</param>
-        /// <param name="startTime">The timestamp from which stream is to be initialized.</param>
+        /// <param name="startTime">The timestamp from which stream is initialized.</param>
         /// <param name="endTime">The timestamp at which the stream ends.</param>
         /// <param name="amount">The amount of tokens to transfer via stream.</param>
         /// <param name="streamDataAccount">The Account which holds the stream data such as
@@ -229,8 +232,8 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to pause sol stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
+        /// <param name="sender">The public key of the account who initialized sol stream from.</param>
+        /// <param name="reciever">The public key of the account to which sol was streamed.</param>
         /// <param name="streamDataPda">The public key of the stream data account which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>The transaction instruction.</returns>
@@ -263,8 +266,8 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to resume sol stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
+        /// <param name="sender">The public key of the account who initialized sol stream from.</param>
+        /// <param name="reciever">The public key of the account to which sol is streamed.</param>
         /// <param name="streamDataPda">The public key of the stream data account which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>The transaction instruction.</returns>
@@ -295,10 +298,11 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Initializes an instruction to initialize transfer sol from one account to another via stream.
+        /// Initializes an instruction to initialize withdraw tokens recieved from stream. Here the recipient
+        /// is the signer.
         /// </summary>
-        /// <param name="sender">The public key of the account who streamed tokens.</param>
-        /// <param name="recipient">The public key of the account who withdraws tokens.</param>
+        /// <param name="sender">The public key of the account from which token stream was initialized.</param>
+        /// <param name="recipient">The public key of the account to which tokens was streamed.</param>
         /// <param name="token">The public key of the token.</param>
         /// <param name="streamDataPda">The public key of the account which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
@@ -357,7 +361,7 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Initializes an instruction to deposit sol to Zebec Program.
+        /// Initializes an instruction to deposit sol in Zebec Program.
         /// </summary>
         /// <param name="address">The public key of the account who deposits Sol for streaming</param>
         /// <param name="amount">The amount of tokens to deposit.</param>
@@ -387,21 +391,22 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to initialize transfer sol from one account to another via stream. Todo*
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="recipient">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="token">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="streamDataAccount">The public key of the account to account to which sol is streamed.</param>
+        /// <param name="sender">The public key of the account who initialized token stream.</param>
+        /// <param name="recipient">The public key of the account to account to which token was streamed.</param>
+        /// <param name="token">The public key of the token.</param>
+        /// <param name="streamDataPda">The public key of the account which was return in 
+        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction CancelTokenStream(
             PublicKey sender,
             PublicKey recipient, 
             PublicKey token,
-            PublicKey streamDataAccount)
+            PublicKey streamDataPda)
         {
             Debug.WriteLine(sender, nameof(sender));
             Debug.WriteLine(recipient, nameof(recipient));
             Debug.WriteLine(token, nameof(token));
-            Debug.WriteLine(streamDataAccount, nameof(streamDataAccount));
+            Debug.WriteLine(streamDataPda, nameof(streamDataPda));
 
             PublicKey depositPda = DeriveDepositAccount(sender);
             Debug.WriteLine(depositPda.ToString(), nameof(depositPda));
@@ -423,7 +428,7 @@ namespace Zebec.Programs
                 AccountMeta.Writable(sender, true),
                 AccountMeta.Writable(recipient, false),
                 AccountMeta.Writable(depositPda, true),
-                AccountMeta.Writable(streamDataAccount, false),
+                AccountMeta.Writable(streamDataPda, false),
                 AccountMeta.Writable(withdrawDataPda, false),
                 AccountMeta.ReadOnly(TokenProgram.ProgramIdKey, false),
                 AccountMeta.Writable(token, false),
@@ -444,11 +449,12 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Initializes an instruction to initialize transfer sol from one account to another via stream.
+        /// Initializes an instruction to pause token stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="sender">The public key of the account who initialized token stream.</param>
+        /// <param name="recipient">The public key of the account to which token was streamed.</param>
+        /// <param name="streamDataPda">The public key of the account which was return in 
+        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction PauseTokenStream(
             PublicKey sender,
@@ -470,17 +476,17 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Initializes an instruction to initialize transfer sol from one account to another via stream.
+        /// Initializes an instruction to resume token stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="sender">The public key of the account who initialized sol stream.</param>
+        /// <param name="recipient">The public key of the account to which sol was streamed.</param>
+        /// <param name="streamDataPda">The public key of the account which was return in 
+        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction ResumeTokenStream(
             PublicKey sender,
             PublicKey recipient,
-            PublicKey streamDataPda
-            )
+            PublicKey streamDataPda)
         {
             return new TransactionInstruction
             {
@@ -497,7 +503,7 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Initializes an instruction to initialize transfer sol from one account to another via stream.
+        /// Initializes an instruction to deposit tokens in Zebec Program.
         /// </summary>
         /// <param name="sender">The public key of the account who deposits token for streaming.</param>
         /// <param name="token">The public key of the token which is streamed.</param>
@@ -544,10 +550,11 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to fund sol to existing stream and extends its time.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="streamDataPda">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="endTime">The amount of tokens to transfer via stream.</param>
-        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="sender">The public key of the account who initialized sol stream.</param>
+        /// <param name="streamDataPda">The public key of the account which was return in 
+        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
+        /// <param name="endTime">The timestamp at which the stream ends.</param>
+        /// <param name="amount">The amount of sol to transfer via stream.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction FundSol(
             PublicKey sender, 
@@ -574,10 +581,11 @@ namespace Zebec.Programs
         /// <summary>
         /// Initializes an instruction to initialize transfer sol from one account to another via stream.
         /// </summary>
-        /// <param name="sender">The public key of the account to initialize sol stream from.</param>
-        /// <param name="streamDataPda">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="token">The public key of the account to account to which sol is streamed.</param>
-        /// <param name="endTime">The amount of tokens to transfer via stream.</param>
+        /// <param name="sender">The public key of the account who initialized token stream.</param>
+        /// <param name="streamDataPda">The public key of the account which was return in 
+        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
+        /// <param name="token">The public key of the token which is streamed.</param>
+        /// <param name="endTime">The timestamps at which the stream ends.</param>
         /// <param name="amount">The amount of tokens to transfer via stream.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction FundToken(
@@ -604,10 +612,10 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Initializes an instruction to  withdraw sol that have beeen deposited in Zebec Program.
+        /// Initializes an instruction to withdraw sol that had been deposited in Zebec Program.
         /// </summary>
         /// <param name="address">The public key of the account who deposited in Zebec Program.</param>
-        /// <param name="amount">The amount of tokens to transfer withdraw.</param>
+        /// <param name="amount">The amount of sol to withdraw.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction WithdrawSol(PublicKey address, ulong amount)
         {
@@ -636,16 +644,14 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Initializes an instruction to initialize transfer sol from one account to another via stream.
+        /// Initializes an instruction to withdraw token that had been deposited in Zebec Program..
         /// </summary>
-        /// <param name="address">The public key of the account to initialize sol stream from.</param>
-        /// <param name="recipient">The public key of the account to account to which sol is streamed.</param>
+        /// <param name="address">The public key of the account who deposited in Zebec Program.</param>
         /// <param name="token">The public key of the token which is streamed.</param>
-        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="amount">The amount of tokens to withdraw.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction WithdrawToken(
             PublicKey address, 
-            PublicKey recipient, 
             PublicKey token, 
             ulong amount)
         {
@@ -700,8 +706,19 @@ namespace Zebec.Programs
         /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
         /// <param name="amount">The amount of tokens to transfer via stream.</param>
         /// <returns>The transaction instruction.</returns>
-        public static TransactionInstruction SwapSol(PublicKey sender, ulong startTime, ulong endTime)
+        public static TransactionInstruction SwapSol(
+            PublicKey sender, 
+            ulong endTime)
         {
+            Debug.WriteLine(sender, nameof(sender));
+
+            PublicKey depositPda = DeriveDepositAccount(sender);
+            Debug.WriteLine(depositPda, nameof(depositPda));
+
+            PublicKey withdrawDataPda = DeriveSolWithdrawDataAccount(sender);
+            Debug.WriteLine(withdrawDataPda, nameof(withdrawDataPda));
+
+            // todo
             return new TransactionInstruction();
         }
 
@@ -958,7 +975,7 @@ namespace Zebec.Programs
         }
 
         /// <summary>
-        /// Derive a PublicKey 
+        /// Derive a PublicKey owned by Zebec
         /// </summary>
         /// <param name="seeds"></param>
         /// <returns></returns>
@@ -968,42 +985,60 @@ namespace Zebec.Programs
             return pda;
         }
 
+        /// <summary>
+        /// Derive deposit account from an address owned by Zebec Program.
+        /// </summary>
+        /// <param name="owner">The PublicKey of the owner who deposits amount.</param>
+        /// <returns></returns>
         public static PublicKey DeriveDepositAccount(PublicKey owner)
         {
-            PublicKey.TryFindProgramAddress(
-                new List<byte[]>(){ owner.KeyBytes }, 
-                ProgramIdKey, 
-                out PublicKey address, 
-                out byte _);
-            return address;
+            return DeriveZebecProgramAddress(new List<byte[]>() { owner.KeyBytes });
         }
 
+
+        /// <summary>
+        /// Derive withdraw data account from an address ouwned by Zebec Program.
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <returns></returns>
         public static PublicKey DeriveSolWithdrawDataAccount(PublicKey owner)
         {
-            PublicKey.TryFindProgramAddress(new List<byte[]> 
-            { 
-                Encoding.UTF8.GetBytes(WITHDRAW_PREFIX), 
-                owner.KeyBytes 
-            }, 
-            ProgramIdKey, 
-            out PublicKey address, 
-            out byte _);
-            return address;
+            return DeriveZebecProgramAddress(new List<byte[]>
+            {
+                Encoding.UTF8.GetBytes(WITHDRAW_PREFIX),
+                owner.KeyBytes
+            });
         }
         
+
+        /// <summary>
+        /// Derive withdraw data account of a token from an address owned by Zebec Program.
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public static PublicKey DeriveTokenWithdrawDataAccount(PublicKey owner, PublicKey token)
         {
-            PublicKey.TryFindProgramAddress(
-                new List<byte[]> 
-                { 
-                    Encoding.UTF8.GetBytes(WITHDRAW_TOKEN_PREFIX), 
+            return DeriveZebecProgramAddress(new List<byte[]>
+                {
+                    Encoding.UTF8.GetBytes(WITHDRAW_TOKEN_PREFIX),
                     owner.KeyBytes,
                     token.KeyBytes
-                }, 
-                ProgramIdKey, 
-                out PublicKey address, 
-                out byte _);
-            return address;
+                });
+        }
+
+        /// <summary>
+        /// Derive multisig data account from an address owned by Zebec Program.
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <returns></returns>
+        public static PublicKey DeriveMultisigDataAccount(PublicKey owner)
+        {
+            return DeriveZebecProgramAddress(new List<byte[]>
+                {
+                    Encoding.UTF8.GetBytes(MULTISIG_SAFE_PREFIX),
+                    owner.KeyBytes
+                });
         }
     }
 }
