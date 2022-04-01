@@ -1,14 +1,9 @@
 ﻿using Solnet.Programs;
-using Solnet.Programs.Utilities;
 using Solnet.Rpc.Models;
 using Solnet.Wallet;
-using Zebec.Models;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Zebec.Models;
 
 namespace Zebec.Programs
 {
