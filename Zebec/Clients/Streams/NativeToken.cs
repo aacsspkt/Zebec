@@ -31,8 +31,8 @@ namespace Zebec.Clients.Streams
             RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
-            byte[] transaction = new TransactionBuilder().
-                SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+            byte[] transaction = new TransactionBuilder()
+                .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
                 .SetFeePayer(account)
                 .AddInstruction(ZebecProgram.DepositSol(
                     account.PublicKey, 
