@@ -46,7 +46,7 @@ namespace Zebec.Programs
         /// <param name="reciever">The public key of the account to account to which sol is streamed.</param>
         /// <param name="startTime">The timestamp from which stream is initialized.</param>
         /// <param name="endTime">The timestamp at which the stream ends.</param>
-        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="amount">The amount of lamports to transfer via stream.</param>
         /// <param name="streamDataAccount">The Account which holds the stream data such as
         /// start and end time, is paused or not, sender and recipient address, etc.</param>
         /// <returns>The transaction instruction.</returns>
@@ -93,7 +93,7 @@ namespace Zebec.Programs
         /// <param name="reciever">The public key of the account to whom sol was streamed.</param>
         /// <param name="streamDataPda">The public key of the account which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
-        /// <param name="amount">The amount of tokens to transfer via stream.</param>
+        /// <param name="amount">The amount of lamports to transfer via stream.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction WithdrawStreamSol( 
             PublicKey sender, 
@@ -549,7 +549,7 @@ namespace Zebec.Programs
         /// <param name="streamDataPda">The public key of the account which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <param name="endTime">The timestamp at which the stream ends.</param>
-        /// <param name="amount">The amount of sol to transfer via stream.</param>
+        /// <param name="amount">The amount of lamports to transfer via stream.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction FundSol(
             PublicKey sender, 
@@ -610,7 +610,7 @@ namespace Zebec.Programs
         /// Initializes an instruction to withdraw sol that had been deposited in Zebec Program.
         /// </summary>
         /// <param name="address">The public key of the account who deposited in Zebec Program.</param>
-        /// <param name="amount">The amount of sol to withdraw.</param>
+        /// <param name="amount">The amount of lamports to withdraw.</param>
         /// <returns>The transaction instruction.</returns>
         public static TransactionInstruction WithdrawSol(PublicKey address, ulong amount)
         {
