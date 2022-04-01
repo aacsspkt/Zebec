@@ -97,5 +97,48 @@ namespace Zebec.Clients.Streams
             };
         }
 
+
+        public static async Task<RequestResult<ZebecResponse>> InitializeStream(
+            Account fromAccount,
+            Account toAccount,
+            PublicKey token,
+            decimal amount,
+            ulong startTimeInUnixTimestamp,
+            ulong endTimeInUnixTimestamp)
+        {
+            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
+
+            byte[] transaction = new TransactionBuilder()
+                .SetRecentBlockHash(blockHash.Result.Value.Blockhash)
+                .SetFeePayer(fromAccount)
+                .AddInstruction(ZebecProgram.InitializeTokenStream(
+                    fromAccount.PublicKey,
+                    toAccount.PublicKey,
+                    token,
+                    startTimeInUnixTimestamp,
+                    endTimeInUnixTimestamp,
+                    SolHelper.ConvertToLamports(amount),
+                    out Account streamDataAccount)
+                )
+                .Build(new List<Account>() { fromAccount, streamDataAccount, });
+
+            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
+            Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
+            Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
+            Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
+
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result, streamDataAccount),
+                ServerErrorCode = requestResult.ServerErrorCode,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
+        }
     }
 }
