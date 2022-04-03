@@ -261,7 +261,7 @@ namespace Zebec.Clients.Streams
                     toAccount.PublicKey, 
                     streamDataPda)
                 )
-                .Build(new List<Account>() { fromAccount, toAccount });
+                .Build(new List<Account>() { fromAccount });
 
             RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
@@ -324,7 +324,7 @@ namespace Zebec.Clients.Streams
         }
 
         /// <summary>
-        /// Create and send transaction to extends and fund sol an already initialized stream. 
+        /// Create and send transaction to extends and fund sol to an already initialized stream. 
         /// </summary>
         /// <param name="fromAccount">The account who initialized sol stream.</param>
         /// <param name="streamDataPda">The public key which was return in 
