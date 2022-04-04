@@ -4,7 +4,22 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Description>A sdk for comunicating through Zebec Protocol in Solana blockchain.</Description>
+    <Version>1.0.0-zzz</Version>
+    <Authors>Ashish Sapkota</Authors>
+    <Company>Zebec</Company>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Zebec-Icon-PNG.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\ashis\Downloads\Zebec Brand Assets\Icon\Zebec-Icon-PNG.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Solnet.Programs" Version="6.0.6" />

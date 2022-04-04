@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zebec", "Zebec\Zebec.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zebec.Test", "Zebec.Test\Zebec.Test.csproj", "{83FCF134-AE95-46AB-AF5F-A8790DC8E753}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZebecConsole", "ZebecConsole\ZebecConsole.csproj", "{A74544EF-F858-4782-A992-2F6EE112EA75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{83FCF134-AE95-46AB-AF5F-A8790DC8E753}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83FCF134-AE95-46AB-AF5F-A8790DC8E753}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83FCF134-AE95-46AB-AF5F-A8790DC8E753}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A74544EF-F858-4782-A992-2F6EE112EA75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A74544EF-F858-4782-A992-2F6EE112EA75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A74544EF-F858-4782-A992-2F6EE112EA75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A74544EF-F858-4782-A992-2F6EE112EA75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
