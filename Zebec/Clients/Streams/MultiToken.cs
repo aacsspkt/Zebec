@@ -31,7 +31,7 @@ namespace Zebec.Clients.Streams
             PublicKey token,
             decimal amount)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -66,7 +66,7 @@ namespace Zebec.Clients.Streams
             PublicKey token,
             ulong amount)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder().
@@ -106,7 +106,7 @@ namespace Zebec.Clients.Streams
             ulong startTimeInUnixTimestamp,
             ulong endTimeInUnixTimestamp)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -149,7 +149,7 @@ namespace Zebec.Clients.Streams
             PublicKey streamDataPda,
             decimal amount)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -188,7 +188,7 @@ namespace Zebec.Clients.Streams
             PublicKey token,
             PublicKey streamDataPda)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -224,7 +224,7 @@ namespace Zebec.Clients.Streams
             Account toAccount,
             PublicKey streamDataPda)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -259,7 +259,7 @@ namespace Zebec.Clients.Streams
             Account toAccount,
             PublicKey streamDataPda)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -298,7 +298,7 @@ namespace Zebec.Clients.Streams
             ulong endTimeInUnixTimestamp,
             ulong amount)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetRecentBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
