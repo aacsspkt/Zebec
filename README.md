@@ -1,4 +1,4 @@
-<img src="Zebec-Icon-Name-PNG.png" width="500" />
+<img src="Images/Zebec-Icon-Name-PNG.png" width="500" />
 
 # Zebec SDK Dotnet
 
