@@ -4,23 +4,22 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Description>A sdk for comunicating through Zebec Protocol in Solana blockchain.</Description>
-    <Version>1.0.0-zzz</Version>
-    <Authors>Ashish Sapkota</Authors>
-    <Company>Zebec</Company>
+	<Description>A sdk that implements Zebec Protocol in C#..NET  It provides you way for communicating with Zebec smart contract in Solana blockchain.</Description>
+	<Version>0.1.1</Version>
+    <Authors>Zebec; Ashish Sapkota;</Authors>
+	<Company>Zebec</Company>
+    <PackageTags>Blockchain; Solana; Zebec Protocol; DeFi; Sol Streaming;</PackageTags>
+    <PackageIcon>Zebec-Icon-PNG.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/aacsspkt/Zebec-SDK-Dotnet</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Zebec-Icon-PNG.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="C:\Users\ashis\Downloads\Zebec Brand Assets\Icon\Zebec-Icon-PNG.png">
+    <None Include="..\Images\Zebec-Icon-PNG.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
+	
   <ItemGroup>
     <PackageReference Include="Solnet.Programs" Version="6.0.6" />
     <PackageReference Include="Solnet.Rpc" Version="6.0.6" />
