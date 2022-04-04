@@ -8,6 +8,7 @@ using Solnet.Wallet;
 using System.Diagnostics;
 using Zebec.Models;
 using Zebec.Programs;
+using Zebec.Utils;
 
 namespace Zebec.Clients.Streams
 {
