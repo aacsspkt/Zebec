@@ -46,7 +46,16 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                ServerErrorCode = requestResult.ServerErrorCode,
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
         /// <summary>
@@ -77,7 +86,15 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
         /// <summary>
@@ -118,7 +135,16 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult, streamDataAccount.PublicKey);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result, streamDataAccount),
+                ServerErrorCode = requestResult.ServerErrorCode,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
         /// <summary>
@@ -156,7 +182,15 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
         /// <summary>
@@ -191,7 +225,15 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
 
         }
 
@@ -227,7 +269,15 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse (requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
         /// <summary>
@@ -262,7 +312,15 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);  
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };  
         }
 
         /// <summary>
@@ -300,7 +358,15 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
     }
 }
