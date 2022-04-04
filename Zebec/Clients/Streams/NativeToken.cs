@@ -29,7 +29,7 @@ namespace Zebec.Clients.Streams
             Account account, 
             decimal amount)
         {
-            RequestResult<ResponseValue<BlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
