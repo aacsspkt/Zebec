@@ -5,7 +5,12 @@ using Solnet.Rpc.Core.Http;
 using Solnet.Rpc.Messages;
 using Solnet.Rpc.Models;
 using Solnet.Wallet;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Zebec.Models;
 using Zebec.Programs;
 
@@ -18,13 +23,7 @@ namespace Zebec.Clients.Streams
         /// </summary>
         private static readonly IRpcClient rpcClient = ClientFactory.GetClient(Cluster.DevNet);
 
-        /// <summary>
-        /// Create and send transaction to deposit token in Zebec Program.
-        /// </summary>
-        /// <param name="account">The account who deposits token.</param>
-        /// <param name="token">The token which is stream.</param>
-        /// <param name="amount">The amount of token to deposit.</param>
-        /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
+
         public static async Task<RequestResult<ZebecResponse>> Deposit(
             Account account,
             PublicKey token,
@@ -50,16 +49,19 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
             
             
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                ServerErrorCode = requestResult.ServerErrorCode,
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        /// <summary>
-        /// Create and send transaction to withdraw deposited token from Zebec Program.
-        /// </summary>
-        /// <param name="account">The account who deposited token.</param>
-        /// <param name="token">The token which is stream.</param>
-        /// <param name="amount">The amount of token to withdraw.</param>
-        /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
+
         public static async Task<RequestResult<ZebecResponse>> Withdraw(
             Account account,
             PublicKey token,
@@ -84,19 +86,18 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        /// <summary>
-        /// Create and send transaction to initialize token stream.
-        /// </summary>
-        /// <param name="fromAccount">The account who initializes token stream.</param>
-        /// <param name="toAccount">The account to which token is streamed.</param>
-        /// <param name="token">The token which is streamed.</param>
-        /// <param name="amount">The amount of token to be streamed.</param>
-        /// <param name="startTimeInUnixTimestamp">The unix timestamp at which stream initializes.</param>
-        /// <param name="endTimeInUnixTimestamp">The unix timestamp at whick stream ends.</param>
-        /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
+
         public static async Task<RequestResult<ZebecResponse>> InitializeStream(
             Account fromAccount,
             Account toAccount,
@@ -128,19 +129,19 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult, streamDataAccount.PublicKey);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result, streamDataAccount),
+                ServerErrorCode = requestResult.ServerErrorCode,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        /// <summary>
-        /// Create and send transaction to withdraw streamed token.
-        /// </summary>
-        /// <param name="fromAccount">The account who initialized token stream.</param>
-        /// <param name="toAccount">The account to which token was streamed.</param>
-        /// <param name="token">The token that was stream.</param>
-        /// <param name="streamDataPda">The public key which was return in 
-        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
-        /// <param name="amount">The amount of token to withdraw.</param>
-        /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
+
         public static async Task<RequestResult<ZebecResponse>> WithdrawStream(
             Account fromAccount,
             Account toAccount,
@@ -168,19 +169,17 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-
-        /// <summary>
-        /// Create and send transaction to cancel initialized stream.
-        /// </summary>
-        /// <param name="fromAccount">The account who initialized token stream.</param>
-        /// <param name="toAccount">The account to which token was streamed and withdraws token.</param>
-        /// <param name="token">The token which was streamed.</param>
-        /// <param name="streamDataPda">The public key which was return in 
-        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
-        /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
         public static async Task<RequestResult<ZebecResponse>> CancelStream(
             Account fromAccount,
             Account toAccount,
@@ -207,17 +206,18 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        /// <summary>
-        /// Create and send transaction to pause on going stream.
-        /// </summary>
-        /// <param name="fromAccount">The account who initialized token stream.</param>
-        /// <param name="toAccount">The account to which token was streamed and withdraws token.</param>
-        /// <param name="streamDataPda">The public key which was return in 
-        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
-        /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
+
         public static async Task<RequestResult<ZebecResponse>> PauseStream(
             Account fromAccount,
             Account toAccount,
@@ -234,7 +234,7 @@ namespace Zebec.Clients.Streams
                     toAccount.PublicKey,
                     streamDataPda)
                 )
-                .Build(new List<Account>() { fromAccount });
+                .Build(new List<Account>() { fromAccount, toAccount });
 
             RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
@@ -242,17 +242,18 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        /// <summary>
-        /// Create and send transaction to resume paused stream.
-        /// </summary>
-        /// <param name="fromAccount">The account who initialized token stream.</param>
-        /// <param name="toAccount">The account to which token was streamed and withdraws token.</param>
-        /// <param name="streamDataPda">The public key which was return in 
-        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
-        /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
+
         public static async Task<RequestResult<ZebecResponse>> ResumeStream(
             Account fromAccount,
             Account toAccount,
@@ -277,19 +278,18 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
 
-        /// <summary>
-        /// Create and send transaction to extends and fund token to an already initialized stream. 
-        /// </summary>
-        /// <param name="fromAccount">The account who initialized token stream.</param>
-        /// <param name="streamDataPda">The public key which was return in 
-        /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
-        /// <param name="token">The token which is streamed.</param>
-        /// <param name="endTimeInUnixTimestamp">The unix timestamp at whick stream ends.</param>
-        /// <param name="amount">The amount of token to fund.</param>
-        /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
+
         public static async Task<RequestResult<ZebecResponse>> FundSol(
             Account fromAccount,
             PublicKey streamDataPda,
@@ -318,7 +318,15 @@ namespace Zebec.Clients.Streams
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
 
-            return ResponseMaker.Make(requestResult);
+            return new RequestResult<ZebecResponse>()
+            {
+                ErrorData = requestResult.ErrorData,
+                HttpStatusCode = requestResult.HttpStatusCode,
+                Reason = requestResult.Reason,
+                Result = new ZebecResponse(requestResult.Result),
+                WasHttpRequestSuccessful = requestResult.WasHttpRequestSuccessful,
+                WasRequestSuccessfullyHandled = requestResult.WasRequestSuccessfullyHandled,
+            };
         }
     }
 }
