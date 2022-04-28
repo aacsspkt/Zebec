@@ -4,6 +4,7 @@ using Solnet.Rpc.Builders;
 using Solnet.Rpc.Core.Http;
 using Solnet.Rpc.Messages;
 using Solnet.Rpc.Models;
+using Solnet.Rpc.Types;
 using Solnet.Wallet;
 using System.Diagnostics;
 using Zebec.Models;
@@ -17,7 +18,24 @@ namespace Zebec.Clients.Streams
         /// <summary>
         /// The rpc client that communicates with solana blockchain.
         /// </summary>
-        private static readonly IRpcClient rpcClient = ClientFactory.GetClient(Cluster.DevNet);
+        public IRpcClient RpcClient { get; set; }
+
+        /// <summary>
+        /// The <see cref="Commitment"/> level for the transaction.
+        /// </summary>
+        public Commitment TransactionCommitment { get; set; }
+
+
+        /// <summary>
+        /// Initialize NativeToken instance.
+        /// </summary>
+        /// <param name="cluster">(Optional) <see cref="Cluster"/> you want to connect. Default is set to <see cref="Cluster.MainNet"/></param>
+        /// <param name="commitment">(Optional) <see cref="Commitment"/> level for the transaction. Default is set to <see cref="Commitment.Finalized"/></param>
+        public NativeToken(Cluster cluster = Cluster.MainNet, Commitment commitment = Commitment.Finalized)
+        {
+            RpcClient = ClientFactory.GetClient(cluster);
+            TransactionCommitment = commitment;
+        }
 
         /// <summary>
         /// Create and send transaction to deposit sol in Zebec Program.
@@ -25,11 +43,11 @@ namespace Zebec.Clients.Streams
         /// <param name="account">The account who deposits sol.</param>
         /// <param name="amount">The amount of sol to deposit.</param>
         /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
-        public static async Task<RequestResult<ZebecResponse>> Deposit(
+        public async Task<RequestResult<ZebecResponse>> Deposit(
             Account account, 
             decimal amount)
         {
-            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await RpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -41,7 +59,7 @@ namespace Zebec.Clients.Streams
                 )
                .Build(account);
 
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            RequestResult<string> requestResult = await RpcClient.SendTransactionAsync(transaction, commitment: TransactionCommitment);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
             Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
@@ -56,11 +74,11 @@ namespace Zebec.Clients.Streams
         /// <param name="account">The account who deposited sol.</param>
         /// <param name="amount">The amount sol to withdraw.</param>
         /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
-        public static async Task<RequestResult<ZebecResponse>> Withdraw(
+        public async Task<RequestResult<ZebecResponse>> Withdraw(
             Account account, 
             decimal amount)
         {
-            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await RpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder().
@@ -72,7 +90,7 @@ namespace Zebec.Clients.Streams
                )
                .Build(account);
                 
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            RequestResult<string> requestResult = await RpcClient.SendTransactionAsync(transaction, commitment: TransactionCommitment);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
             Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
             Debug.WriteLine(requestResult.RawRpcResponse, nameof(requestResult.RawRpcResponse));
@@ -90,14 +108,14 @@ namespace Zebec.Clients.Streams
         /// <param name="startTimeInUnixTimestamp">The unix timestamp at which stream initializes.</param>
         /// <param name="endTimeInUnixTimestamp">The unix timestamp at whick stream ends.</param>
         /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
-        public static async Task<RequestResult<ZebecResponse>> InitializeStream(
+        public async Task<RequestResult<ZebecResponse>> InitializeStream(
             Account fromAccount, 
             Account toAccount, 
             decimal amount, 
             ulong startTimeInUnixTimestamp,
             ulong endTimeInUnixTimestamp)
         {
-            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await RpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -113,7 +131,7 @@ namespace Zebec.Clients.Streams
                 )
                 .Build(new List<Account>() { fromAccount, streamDataAccount, });
 
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            RequestResult<string> requestResult = await RpcClient.SendTransactionAsync(transaction, commitment: TransactionCommitment);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
             Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
@@ -131,13 +149,13 @@ namespace Zebec.Clients.Streams
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <param name="amount">The amount of sol to withdraw.</param>
         /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
-        public static async Task<RequestResult<ZebecResponse>> WithdrawStream(
+        public async Task<RequestResult<ZebecResponse>> WithdrawStream(
             Account fromAccount,
             Account toAccount, 
             PublicKey streamDataPda, 
             decimal amount)
         {
-            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await RpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -151,7 +169,7 @@ namespace Zebec.Clients.Streams
                 )
                 .Build(toAccount);
 
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            RequestResult<string> requestResult = await RpcClient.SendTransactionAsync(transaction);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
             Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
@@ -168,12 +186,12 @@ namespace Zebec.Clients.Streams
         /// <param name="streamDataPda">The public key which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
-        public static async Task<RequestResult<ZebecResponse>> CancelStream(
+        public async Task<RequestResult<ZebecResponse>> CancelStream(
             Account fromAccount, 
             Account toAccount, 
             PublicKey streamDataPda)
         {
-            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await RpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -186,7 +204,7 @@ namespace Zebec.Clients.Streams
                 )
                 .Build(fromAccount);
 
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            RequestResult<string> requestResult = await RpcClient.SendTransactionAsync(transaction, commitment: TransactionCommitment);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
             Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
@@ -204,12 +222,12 @@ namespace Zebec.Clients.Streams
         /// <param name="streamDataPda"><param name="streamDataPda">The public key which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
-        public static async Task<RequestResult<ZebecResponse>> PauseStream(
+        public async Task<RequestResult<ZebecResponse>> PauseStream(
             Account fromAccount, 
             Account toAccount, 
             PublicKey streamDataPda)
         {
-            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await RpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -222,7 +240,7 @@ namespace Zebec.Clients.Streams
                 )
                 .Build(new List<Account>() { fromAccount });
 
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            RequestResult<string> requestResult = await RpcClient.SendTransactionAsync(transaction, commitment: TransactionCommitment);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
             Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
@@ -239,12 +257,12 @@ namespace Zebec.Clients.Streams
         /// <param name="streamDataPda">The public key which was return in 
         /// <see cref="ZebecResponse.StreamDataAddress"/> after stream was initialized.</param>
         /// <returns>Returns <see cref="RequestResult{T}"/> where T is <see cref="ZebecResponse"/>.</returns>
-        public static async Task<RequestResult<ZebecResponse>> ResumeStream(
+        public async Task<RequestResult<ZebecResponse>> ResumeStream(
             Account fromAccount, 
             Account toAccount, 
             PublicKey streamDataPda)
         {
-            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await RpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -257,7 +275,7 @@ namespace Zebec.Clients.Streams
                 )
                 .Build(fromAccount);
 
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            RequestResult<string> requestResult = await RpcClient.SendTransactionAsync(transaction, commitment: TransactionCommitment);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
             Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
@@ -275,13 +293,13 @@ namespace Zebec.Clients.Streams
         /// <param name="endTimeInUnixTimestamp">The unix timestamp at whick stream ends.</param>
         /// <param name="amount">The amount of sol to fund.</param>
         /// <returns></returns>
-        public static async Task<RequestResult<ZebecResponse>> FundSol(
+        public async Task<RequestResult<ZebecResponse>> FundSol(
             Account fromAccount,
             PublicKey streamDataPda,
             ulong endTimeInUnixTimestamp,
             ulong amount)
         {
-            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await rpcClient.GetLatestBlockHashAsync();
+            RequestResult<ResponseValue<LatestBlockHash>> blockHash = await RpcClient.GetLatestBlockHashAsync();
             Debug.WriteLineIf(blockHash.WasSuccessful, blockHash.Result.Value.Blockhash, "BlockHash");
 
             byte[] transaction = new TransactionBuilder()
@@ -295,7 +313,7 @@ namespace Zebec.Clients.Streams
                 )
                 .Build(fromAccount);
 
-            RequestResult<string> requestResult = await rpcClient.SendTransactionAsync(transaction);
+            RequestResult<string> requestResult = await RpcClient.SendTransactionAsync(transaction, commitment: TransactionCommitment);
             Debug.WriteLine(requestResult.HttpStatusCode.ToString(), nameof(requestResult.HttpStatusCode));
             Debug.WriteLine(requestResult.WasSuccessful, nameof(requestResult.WasSuccessful));
             Debug.WriteLine(requestResult.Reason, nameof(requestResult.Reason));
