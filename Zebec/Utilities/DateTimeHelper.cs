@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Zebec.Utils
+namespace Zebec.Utilities
 {
     public static class DateTimeHelper
     {

@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hexarc.Borsh" Version="1.0.0" />
     <PackageReference Include="Solnet.Programs" Version="6.0.7" />
     <PackageReference Include="Solnet.Rpc" Version="6.0.7" />
     <PackageReference Include="Solnet.Wallet" Version="6.0.7" />

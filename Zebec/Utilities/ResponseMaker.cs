@@ -2,7 +2,7 @@
 using Solnet.Wallet;
 using Zebec.Models;
 
-namespace Zebec.Utils
+namespace Zebec.Utilities
 {
     public class ResponseMaker
     {
