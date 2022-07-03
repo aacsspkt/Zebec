@@ -3,7 +3,7 @@ using Solnet.Wallet;
 using Zebec.Models;
 using Zebec.Utilities;
 
-namespace Zebec.Program
+namespace Zebec.Programs
 {
     public static class InstructionData
     {

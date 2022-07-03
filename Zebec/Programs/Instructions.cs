@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Text;
 using Zebec.Models;
 
-namespace Zebec.Program
+namespace Zebec.Programs
 {
     public static class Instructions
     {

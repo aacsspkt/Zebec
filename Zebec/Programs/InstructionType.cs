@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Zebec.Program
+namespace Zebec.Programs
 {
     internal class InstructionTypes
     {
